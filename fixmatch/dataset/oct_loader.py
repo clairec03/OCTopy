@@ -40,9 +40,11 @@ def get_mean_std(dataset, name, num_workers=4):
 def get_oct_loaders(root, batch_size=64, num_workers=4, pin_memory=True, drop_last=True, mu=7, image_dim=(256, 256)):
     root = Path(root)
     no_transform = transforms.Compose([transforms.Resize(image_dim), transforms.ToTensor()])
-    labeled_oct_mean, labeled_oct_std = get_mean_std(ImageFolder(root / "labeled", transform=no_transform), "labeled")
-    unlabeled_oct_mean, unlabeled_oct_std = get_mean_std(ImageFolder(root / "unlabeled", transform=no_transform), "unlabeled")
-
+    # labeled_oct_mean, labeled_oct_std = get_mean_std(ImageFolder(root / "labeled", transform=no_transform), "labeled")
+    # unlabeled_oct_mean, unlabeled_oct_std = get_mean_std(ImageFolder(root / "unlabeled", transform=no_transform), "unlabeled")
+    labeled_oct_mean = unlabeled_oct_mean = [0.485, 0.456, 0.406]
+    labeled_oct_std = unlabeled_oct_std = [0.229, 0.224, 0.225]
+    
     transform_labeled = transforms.Compose(
         [
             transforms.Resize(image_dim),

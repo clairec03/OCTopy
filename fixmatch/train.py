@@ -72,12 +72,12 @@ def main():
     parser.add_argument("--batch-size", default=64, type=int, help="labeled batch size")
     parser.add_argument("--mu", default=7, type=int, help="coefficient of unlabeled batch size")
     parser.add_argument("--seed", default=None, type=int, help="seed for initializing training")
-    parser.add_argument("--lambda-u", default=0.1, type=float, help="coefficient of unlabeled loss")
+    parser.add_argument("--lambda-u", default=1, type=float, help="coefficient of unlabeled loss")
     parser.add_argument("--T", default=1, type=float, help="pseudo label temperature")
     parser.add_argument("--threshold", default=0.95, type=float, help="pseudo label threshold")
     parser.add_argument("--out", default="./out", help="directory to output the result")
     parser.add_argument("--no-progress", action="store_true", help="don't use progress bar")
-    parser.add_argument("--no-pin-memory", action="store_true", help="Pin CPU memory in DataLoader")
+    parser.add_argument("--no-pin-memory", action="store_true", help="Don't pin CPU memory in DataLoader")
     args = parser.parse_args()
 
     if args.arch == "wideresnet":
