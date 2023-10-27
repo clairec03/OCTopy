@@ -37,22 +37,23 @@ def get_mean_std(dataset, name, num_workers=4):
     return mean, std
 
 
-def get_oct_loaders(root, batch_size=64, num_workers=4, pin_memory=True, drop_last=True, mu=7):
+def get_oct_loaders(root, batch_size=64, num_workers=4, pin_memory=True, drop_last=True, mu=7, image_dim=(256, 256)):
     root = Path(root)
-    no_transform = transforms.Compose([transforms.ToTensor()])
+    no_transform = transforms.Compose([transforms.Resize(image_dim), transforms.ToTensor()])
     labeled_oct_mean, labeled_oct_std = get_mean_std(ImageFolder(root / "labeled", transform=no_transform), "labeled")
     unlabeled_oct_mean, unlabeled_oct_std = get_mean_std(ImageFolder(root / "unlabeled", transform=no_transform), "unlabeled")
 
     transform_labeled = transforms.Compose(
         [
+            transforms.Resize(image_dim),
             transforms.RandomHorizontalFlip(),
             transforms.RandomCrop(size=32, padding=int(32 * 0.125), padding_mode="reflect"),
             transforms.ToTensor(),
             transforms.Normalize(mean=labeled_oct_mean, std=labeled_oct_std),
         ]
     )
-    transform_val = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=labeled_oct_mean, std=labeled_oct_std)])
-    transform_unlabeled = TransformFixMatch(mean=unlabeled_oct_mean, std=unlabeled_oct_std)
+    transform_val = transforms.Compose([transforms.Resize(image_dim),transforms.ToTensor(), transforms.Normalize(mean=labeled_oct_mean, std=labeled_oct_std)])
+    transform_unlabeled = TransformFixMatch(mean=unlabeled_oct_mean, std=unlabeled_oct_std, image_dim=image_dim)
 
     labeled_len = len(ImageFolder(root / "labeled"))
     labeled_indices = list(range(labeled_len))
@@ -104,9 +105,9 @@ def get_oct_loaders(root, batch_size=64, num_workers=4, pin_memory=True, drop_la
 
 
 class TransformFixMatch(object):
-    def __init__(self, mean, std):
+    def __init__(self, mean, std, image_dim):
         self.weak = transforms.Compose(
-            [transforms.RandomHorizontalFlip(), transforms.RandomCrop(size=32, padding=int(32 * 0.125), padding_mode="reflect")]
+            [transforms.Resize(image_dim), transforms.RandomHorizontalFlip(), transforms.RandomCrop(size=32, padding=int(32 * 0.125), padding_mode="reflect")]
         )
         self.strong = transforms.Compose(
             [

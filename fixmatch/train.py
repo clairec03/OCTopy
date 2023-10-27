@@ -74,6 +74,7 @@ def main():
     parser.add_argument("--threshold", default=0.95, type=float, help="pseudo label threshold")
     parser.add_argument("--out", default="./out", help="directory to output the result")
     parser.add_argument("--no-progress", action="store_true", help="don't use progress bar")
+    parser.add_argument("--no-pin-memory", action="store_true", help="Pin CPU memory in DataLoader")
     args = parser.parse_args()
 
     if args.arch == "wideresnet":
@@ -84,7 +85,7 @@ def main():
     model.to(device)
 
     labeled_trainloader, val_loader, unlabeled_trainloader, _ = get_oct_loaders(
-        args.dataset, batch_size=args.batch_size, num_workers=args.num_workers, mu=args.mu
+        args.dataset, batch_size=args.batch_size, num_workers=args.num_workers, mu=args.mu, pin_memory=not args.no_pin_memory
     )
 
     if args.seed is not None:
@@ -161,7 +162,7 @@ def train(args, labeled_trainloader, unlabeled_trainloader, val_loader, model, o
             mask_probs.update(mask.mean().item())
             if not args.no_progress:
                 p_bar.set_description(
-                    f"Train Epoch: {epoch}/{args.epochs:4}. Unlabeled epoch: {(unlabeled_epoch + unlabeled_current_epoch_percent * 100):.1f} LR: {scheduler.get_last_lr()[0]:.4f}. Loss: {loss:.4f}. Loss_x: {loss_x:.4f}. Loss_u: {loss_u:.4f}. Mask: {mask:.2f}. "
+                    f"Train Epoch: {epoch}/{args.epochs:4}. Unlabeled epoch: {(unlabeled_epoch + unlabeled_current_epoch_percent):.1f} LR: {scheduler.get_last_lr()[0]:.4f}. Loss: {loss:.4f}. Loss_x: {loss_x:.4f}. Loss_u: {loss_u:.4f}. Mask: {mask_probs.avg:.2f}. "
                 )
                 p_bar.update()
 
@@ -170,7 +171,7 @@ def train(args, labeled_trainloader, unlabeled_trainloader, val_loader, model, o
         else:
             test_model = model
 
-        test_loss, test_acc = test(args, val_loader, test_model, epoch)
+        test_loss, test_acc = test(val_loader, test_model)
 
         args.writer.add_scalar("train/1.train_loss", losses.avg, epoch)
         args.writer.add_scalar("train/2.train_loss_x", losses_x.avg, epoch)
@@ -203,12 +204,9 @@ def train(args, labeled_trainloader, unlabeled_trainloader, val_loader, model, o
         logger.info("Mean top-1 acc: {:.2f}\n".format(np.mean(test_accs[-20:])))
 
 
-def test(args, val_loader, model, epoch):
+def test(val_loader, model):
     losses = AverageMeter()
     top1 = AverageMeter()
-
-    if not args.no_progress:
-        val_loader = tqdm(val_loader, disable=0)
 
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(val_loader):
@@ -219,21 +217,11 @@ def test(args, val_loader, model, epoch):
             outputs = model(inputs)
             loss = F.cross_entropy(outputs, targets)
 
-            prec1 = accuracy(outputs, targets, topk=(1,))
+            precent = accuracy(outputs, targets, topk=(1,))
             losses.update(loss.item(), inputs.shape[0])
-            top1.update(prec1.item(), inputs.shape[0])
-            if not args.no_progress:
-                val_loader.set_description(
-                    "Test Iter: {batch:4}/{iter:4}. Loss: {loss:.4f}. top1: {top1:.2f}.".format(
-                        batch=batch_idx + 1,
-                        iter=len(val_loader),
-                        loss=losses.avg,
-                        top1=top1.avg,
-                    )
-                )
-        if not args.no_progress:
-            val_loader.close()
-
+            top1.update(precent[0].item(), inputs.shape[0])
+            print(f"Test Loss: {losses.avg:.4f}. Accuracy: {top1.avg:.2f}.")
+            
     logger.info("top-1 acc: {:.2f}".format(top1.avg))
     return losses.avg, top1.avg
 
