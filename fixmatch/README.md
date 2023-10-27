@@ -7,8 +7,8 @@ This code is only available in FixMatch (RandAugment).
 ## Install
 
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-pip3 install tensorboard numpy tqdm apex
-pip3 install -U tensorboard numpy tqdm
+pip3 install tensorboard numpy tqdm
+pip3 install tensorboard numpy tqdm
 
 ## Results
 
