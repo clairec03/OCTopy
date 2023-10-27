@@ -8,8 +8,11 @@ import time
 from collections import OrderedDict
 import models.wideresnet as wideresnet_models
 import models.resnext as resnext_models
+import torchvision.models as models
+from torchvision.models.resnet import ResNet18_Weights
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
@@ -59,7 +62,7 @@ def main():
     parser = argparse.ArgumentParser(description="OCT PyTorch FixMatch Training")
     parser.add_argument("--num-workers", type=int, default=4, help="number of workers")
     parser.add_argument("--dataset", default="/mnt/e/昊翔_all/OCT_DATASET_DO_NOT_SHARE_WITH_ANYONE", type=str, help="dataset path")
-    parser.add_argument("--arch", default="wideresnet", type=str, choices=["wideresnet", "resnext"], help="architecture name")
+    parser.add_argument("--arch", default="resnet18", type=str, choices=["wideresnet", "resnext", "resnet18"], help="architecture name")
     parser.add_argument("--epochs", default=1000, type=int, help="number of total epochs to run")
     parser.add_argument("--lr", "--learning-rate", default=0.03, type=float, help="initial learning rate")
     parser.add_argument("--warmup", default=0, type=float, help="warmup epochs (unlabeled data based)")
@@ -69,7 +72,7 @@ def main():
     parser.add_argument("--batch-size", default=64, type=int, help="labeled batch size")
     parser.add_argument("--mu", default=7, type=int, help="coefficient of unlabeled batch size")
     parser.add_argument("--seed", default=None, type=int, help="seed for initializing training")
-    parser.add_argument("--lambda-u", default=1, type=float, help="coefficient of unlabeled loss")
+    parser.add_argument("--lambda-u", default=0.1, type=float, help="coefficient of unlabeled loss")
     parser.add_argument("--T", default=1, type=float, help="pseudo label temperature")
     parser.add_argument("--threshold", default=0.95, type=float, help="pseudo label threshold")
     parser.add_argument("--out", default="./out", help="directory to output the result")
@@ -81,6 +84,11 @@ def main():
         model = wideresnet_models.build_wideresnet(depth=28, widen_factor=8, dropout=0, num_classes=4)
     elif args.arch == "resnext":
         model = resnext_models.build_resnext(cardinality=8, depth=29, width=64, num_classes=4)
+    elif args.arch == "resnet18":
+        model = models.resnet18(weights=ResNet18_Weights.IMAGENET1K_V1)
+        model.fc = nn.Linear(model.fc.in_features, 4)
+        # load pretrained model
+        model.load_state_dict(torch.load("../resnet/resnet18_e20.ckpt"))
     logger.info("Total trainable params: {:.2f}M".format(sum(p.numel() for p in model.parameters()) / 1e6))
     model.to(device)
 
@@ -101,8 +109,7 @@ def main():
         num_training_steps=len(unlabeled_trainloader) * args.epochs,
     )
 
-    if args.use_ema:
-        ema_model = ModelEMA(model, args.ema_decay)
+    ema_model = ModelEMA(model, args.ema_decay) if args.use_ema else None
 
     model.zero_grad()
     train(args, labeled_trainloader, unlabeled_trainloader, val_loader, model, optimizer, ema_model, scheduler)
@@ -221,7 +228,7 @@ def test(val_loader, model):
             losses.update(loss.item(), inputs.shape[0])
             top1.update(precent[0].item(), inputs.shape[0])
             print(f"Test Loss: {losses.avg:.4f}. Accuracy: {top1.avg:.2f}.")
-            
+
     logger.info("top-1 acc: {:.2f}".format(top1.avg))
     return losses.avg, top1.avg
 
