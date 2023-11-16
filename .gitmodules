@@ -1,0 +1,12 @@
+[submodule "OCT_DDPM"]
+	path = OCT_DDPM
+	url = https://github.com/DeweiHu/OCT_DDPM.git
+[submodule "OCT-Denoising"]
+	path = OCT-Denoising
+	url = https://github.com/ArkaJU/OCT-Denoising.git
+[submodule "SE_Despeckling"]
+	path = SE_Despeckling
+	url = https://github.com/adigasu/SE_Despeckling.git
+[submodule "DRGAN-OCT"]
+	path = DRGAN-OCT
+	url = https://github.com/Deep-Imaging-Group/DRGAN-OCT.git
