@@ -56,10 +56,10 @@ model = ViT(
     image_size = 256,
     patch_size = 16,
     num_classes = 4,
-    dim = 1024,
+    dim = 2048,
     depth = 8,
     heads = 16,
-    mlp_dim = 2048,
+    mlp_dim = 4096,
     dropout = 0.1,
     emb_dropout = 0.1
 ).to(device)
