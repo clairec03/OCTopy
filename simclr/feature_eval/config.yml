@@ -1,0 +1,22 @@
+!!python/object:argparse.Namespace
+arch: resnet50
+# arch: resnet18
+batch_size: 64
+dataset_path: /mnt/c/Users/Sean/Downloads/OCT_DATASET_DO_NOT_SHARE_WITH_ANYONE_split/
+# checkpoint_path: ../runs/Dec02_20-43-36_Seans-XPS/checkpoint_95.pth.tar
+checkpoint_path: ../runs/checkpoint_195.pth.tar
+dataset_name: oct
+disable_cuda: false
+epochs: 100
+fp16_precision: false
+gpu_index: 0
+log_every_n_steps: 1
+lr: 0.0003
+n_views: 2
+# out_dim: 128
+out_dim: 32
+resume: ''
+seed: null
+temperature: 0.07
+weight_decay: 0.0001
+workers: 8
