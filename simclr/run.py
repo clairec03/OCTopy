@@ -17,7 +17,7 @@ parser.add_argument(
     "-a",
     "--arch",
     metavar="ARCH",
-    default="resnet18",
+    default="resnet50",
     choices=model_names,
     help="model architecture: " + " | ".join(model_names) + " (default: resnet50)",
 )
@@ -26,7 +26,7 @@ parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number
 parser.add_argument(
     "-b",
     "--batch-size",
-    default=64,
+    default=256,
     type=int,
     metavar="N",
     help="mini-batch size (default: 256), this is the total "
@@ -42,7 +42,7 @@ parser.add_argument("--disable-cuda", action="store_true", help="Disable CUDA")
 parser.add_argument("--fp16-precision", action="store_true", help="Whether or not to use 16-bit precision GPU training.")
 
 parser.add_argument("--out_dim", default=128, type=int, help="feature dimension (default: 128)")
-parser.add_argument("--log-every-n-steps", default=100, type=int, help="Log every n steps")
+parser.add_argument("--log-every-n-steps", default=1, type=int, help="Log every n steps")
 parser.add_argument("--temperature", default=0.07, type=float, help="softmax temperature (default: 0.07)")
 parser.add_argument("--n-views", default=2, type=int, metavar="N", help="Number of views for contrastive learning training.")
 parser.add_argument("--gpu-index", default=0, type=int, help="Gpu index.")
