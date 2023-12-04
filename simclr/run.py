@@ -17,12 +17,12 @@ parser.add_argument(
     "-a",
     "--arch",
     metavar="ARCH",
-    default="resnet50",
+    default="resnet18",
     choices=model_names,
     help="model architecture: " + " | ".join(model_names) + " (default: resnet50)",
 )
-parser.add_argument("-j", "--workers", default=4, type=int, metavar="N", help="number of data loading workers (default: 32)")
-parser.add_argument("--epochs", default=200, type=int, metavar="N", help="number of total epochs to run")
+parser.add_argument("-j", "--workers", default=10, type=int, metavar="N", help="number of data loading workers (default: 32)")
+parser.add_argument("--epochs", default=300, type=int, metavar="N", help="number of total epochs to run")
 parser.add_argument(
     "-b",
     "--batch-size",
@@ -50,6 +50,7 @@ parser.add_argument("--gpu-index", default=0, type=int, help="Gpu index.")
 
 def main():
     args = parser.parse_args()
+    print(args)
     assert args.n_views == 2, "Only two view training is supported. Please use --n-views 2."
     # check if gpu training is available
     if not args.disable_cuda and torch.cuda.is_available():
