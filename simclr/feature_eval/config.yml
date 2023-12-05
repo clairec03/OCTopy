@@ -1,7 +1,7 @@
 !!python/object:argparse.Namespace
 name: simclr_resnet50_dim128_batch200_epoch295_notfrozen
 arch: resnet50
-batch_size: 64
+batch_size: 128
 dataset_path: /mnt/c/Users/Sean/Downloads/OCT_DATASET_DO_NOT_SHARE_WITH_ANYONE_split/
 checkpoint_path: /mnt/c/Users/Sean/Downloads/simclr_resnet50_dim128_batch200_epoch295.pth.tar
 dataset_name: oct
