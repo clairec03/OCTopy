@@ -10,3 +10,6 @@ https://github.com/lucidrains/vit-pytorch
 
 https://github.com/sthalles/SimCLR
 
+RAdam Optimizer: https://github.com/LiyuanLucasLiu/RAdam
+
+Lookahead Optimizer: https://github.com/michaelrzhang/lookahead/tree/master
