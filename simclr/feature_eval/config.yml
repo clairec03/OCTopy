@@ -1,0 +1,20 @@
+!!python/object:argparse.Namespace
+name: simclr_resnet50_dim128_batch200_epoch295_notfrozen
+arch: resnet50
+batch_size: 128
+dataset_path: /mnt/c/Users/Sean/Downloads/OCT_DATASET_DO_NOT_SHARE_WITH_ANYONE_split/
+checkpoint_path: /mnt/c/Users/Sean/Downloads/simclr_resnet50_dim128_batch200_epoch295.pth.tar
+dataset_name: oct
+disable_cuda: false
+epochs: 100
+fp16_precision: false
+gpu_index: 0
+log_every_n_steps: 1
+lr: 0.0003
+n_views: 2
+out_dim: 128
+resume: ''
+seed: null
+temperature: 0.07
+weight_decay: 0.0001
+workers: 12
